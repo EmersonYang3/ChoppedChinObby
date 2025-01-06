@@ -6,5 +6,4 @@ Notes: Assets such as audio and decals were uploaded to Roblox, you will have to
 - Roblox LSP
 - Rojo
 
-# Versions
-v1.0.0
+Currently 25 stages

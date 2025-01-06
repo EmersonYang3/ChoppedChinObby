@@ -1,6 +1,5 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local player = Players.LocalPlayer
 
 local confettiPart = ReplicatedStorage:WaitForChild("confetti")
 local debounce = false
@@ -29,10 +28,13 @@ local function showConfetti(checkpoint)
 end
 
 local function onCheckpointTouched(hit, checkpointPart)
-    local checkpointID = checkpointPart.Name
-    if not triggeredCheckpoints[checkpointID] then
-        triggeredCheckpoints[checkpointID] = true
-        showConfetti(checkpointPart)
+    local player = Players:GetPlayerFromCharacter(hit.Parent)
+    if player and player == Players.LocalPlayer then
+        local checkpointID = checkpointPart.Name
+        if not triggeredCheckpoints[checkpointID] then
+            triggeredCheckpoints[checkpointID] = true
+            showConfetti(checkpointPart)
+        end
     end
 end
 

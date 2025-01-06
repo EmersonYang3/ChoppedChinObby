@@ -1,11 +1,14 @@
 -- Services and Variables
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
+local BadgeService = game:GetService("BadgeService")
 
 local checkPointFolder = workspace.checkpoints
 local DataStore = DataStoreService:GetDataStore("checkpoints")
 local debounceTimes = {}
 local playerCheckpoints = {}
+local LastCheckPoint = 25
+local BADGE_ID = 2874162070205701
 
 -- Functions
 local function fetchCheckPoint(userID)
@@ -16,6 +19,7 @@ local function updateCheckPoint(userID, checkPointID)
     local highestCheckPoint = fetchCheckPoint(userID)
 
     if checkPointID > highestCheckPoint then
+        print("Updating checkpoint for user: ", userID, " to checkpoint: ", checkPointID)
         DataStore:SetAsync(userID, checkPointID)
         playerCheckpoints[userID] = checkPointID
         
@@ -23,10 +27,15 @@ local function updateCheckPoint(userID, checkPointID)
         if player then
             local leaderstats = player:FindFirstChild("leaderstats")
             if leaderstats then
-                local checkpointValue = leaderstats:FindFirstChild("Checkpoints")
+                local checkpointValue = leaderstats:FindFirstChild("Stage")
                 if checkpointValue then
                     checkpointValue.Value = checkPointID
                 end
+            end
+
+            if checkPointID == LastCheckPoint then
+                BadgeService:AwardBadge(player.UserId, BADGE_ID)
+                print("Awarded badge to user: ", userID)
             end
         end
     end
@@ -35,6 +44,7 @@ end
 local function onPlayerAdded(player)
     local userID = player.UserId
     local savedCheckpoint = fetchCheckPoint(userID)
+    print("Player added with saved checkpoint: ", savedCheckpoint)
 
     playerCheckpoints[userID] = savedCheckpoint
 
@@ -43,7 +53,7 @@ local function onPlayerAdded(player)
     leaderstats.Parent = player
     
     local checkpointValue = Instance.new("IntValue")
-    checkpointValue.Name = "Checkpoints"
+    checkpointValue.Name = "Stage"
     checkpointValue.Value = savedCheckpoint
     checkpointValue.Parent = leaderstats
 
@@ -69,6 +79,7 @@ for _, descendant in ipairs(checkPointFolder:GetDescendants()) do
                 
                 if checkPointID and (not debounceTimes[userID] or currentTime - debounceTimes[userID] > 5) then
                     debounceTimes[userID] = currentTime
+                    print("Player touched checkpoint: ", checkPointID)
                     updateCheckPoint(userID, checkPointID)
                 end
             end
